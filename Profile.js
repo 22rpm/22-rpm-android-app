@@ -1,3 +1,4 @@
+import { AUTH_BASE } from './apiConfig';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -50,7 +51,7 @@ export default function Profile({ navigation }) {
         return;
       }
 
-      const response = await fetch('https://api.twentytwohealth.com/rpm-be/api/auth/check-me', {
+      const response = await fetch(`${AUTH_BASE}/check-me`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

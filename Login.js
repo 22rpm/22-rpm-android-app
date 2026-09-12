@@ -1,3 +1,4 @@
+import { API_BASE, AUTH_BASE } from './apiConfig';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -202,7 +203,7 @@ export default function Login({ navigation }) {
         const method = storedEmail.includes('@') ? 'email' : 'username'; // Added this line
 
         const response = await fetch(
-          'https://api.twentytwohealth.com/rpm-be/api/auth/login',
+          `${AUTH_BASE}/login`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -233,7 +234,7 @@ export default function Login({ navigation }) {
           setShowOtpModal(true);
         } else if (response.ok && data.token) {
           const cookies = await CookieManager.get(
-            'https://api.twentytwohealth.com/rpm-be',
+            API_BASE,
           );
           const accessToken = cookies?.token?.value;
           const refreshToken = cookies?.refresh_token?.value;
@@ -316,7 +317,7 @@ export default function Login({ navigation }) {
       const method = userIdentifier.includes('@') ? 'email' : 'username'; // Added this line
 
       const response = await fetch(
-        'https://api.twentytwohealth.com/rpm-be/api/auth/login',
+        `${AUTH_BASE}/login`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -347,7 +348,7 @@ export default function Login({ navigation }) {
       } else if (response.ok && data.token) {
         console.log('Login successful, saving tokens');
         const cookies = await CookieManager.get(
-          'https://api.twentytwohealth.com/rpm-be',
+          API_BASE,
         );
         const accessToken = cookies?.token?.value;
         const refreshToken = cookies?.refresh_token?.value;
@@ -424,7 +425,7 @@ export default function Login({ navigation }) {
 
     try {
       const response = await fetch(
-        'https://api.twentytwohealth.com/rpm-be/api/auth/verify-otp',
+        `${AUTH_BASE}/verify-otp`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -441,7 +442,7 @@ export default function Login({ navigation }) {
 
       if (response.ok) {
         const cookies = await CookieManager.get(
-          'https://api.twentytwohealth.com/rpm-be',
+          API_BASE,
         );
         const accessToken = cookies?.token?.value;
         const refreshToken = cookies?.refresh_token?.value;
@@ -489,7 +490,7 @@ export default function Login({ navigation }) {
   const refreshAuthToken = async () => {
     try {
       const response = await fetch(
-        'https://api.twentytwohealth.com/rpm-be/api/auth/refresh-token',
+        `${AUTH_BASE}/refresh-token`,
         {
           method: 'POST',
           credentials: 'include',

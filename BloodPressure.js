@@ -1,3 +1,4 @@
+import { DEV_DATA_BASE } from './apiConfig';
 // BloodPressure.js
 import React, {useState, useMemo, useEffect, useRef} from 'react';
 import {
@@ -29,7 +30,7 @@ import axios from 'axios';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 // API Configuration - Same as iOS
-const API_BASE_URL = 'https://api.twentytwohealth.com/rpm-be/api/dev-data';
+const API_BASE_URL = DEV_DATA_BASE;
 const DEV_TYPE = 'bp';
 
 // Configure axios to include credentials

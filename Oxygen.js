@@ -1,3 +1,4 @@
+import { DEV_DATA_BASE } from './apiConfig';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -33,7 +34,7 @@ const db = SQLite.openDatabase(
 );
 
 // API configuration
-const API_BASE_URL = 'https://api.twentytwohealth.com/rpm-be/api/dev-data';
+const API_BASE_URL = DEV_DATA_BASE;
 const DEV_TYPE = 'spo2';
 
 export default function OxygenSaturation({ navigation }) {

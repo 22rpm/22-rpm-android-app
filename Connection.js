@@ -1,3 +1,4 @@
+import { MESSAGES_BASE, SOCKET_BASE } from './apiConfig';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -29,7 +30,7 @@ function ConversationsList({ navigation }) {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = 'https://api.twentytwohealth.com/rpm-be/api/messages';
+  const API_BASE = MESSAGES_BASE;
 
   const handleBack = () => {
     navigation.navigate('Home');
@@ -192,7 +193,7 @@ function ChatScreen({ navigation, route }) {
   const receiverId = route?.params?.receiverId || 3;
   const receiverName = route?.params?.receiverName || 'Dr. Amir';
 
-  const API_BASE = 'https://api.twentytwohealth.com/rpm-be/api/messages';
+  const API_BASE = MESSAGES_BASE;
 
   // Socket connection
   useEffect(() => {
@@ -200,7 +201,7 @@ function ChatScreen({ navigation, route }) {
     const initSocket = async () => {
       const token = await AsyncStorage.getItem("token");
 
-      newSocket = io("https://api.twentytwohealth.com", {
+      newSocket = io(SOCKET_BASE, {
         path: "/rpm-be/socket.io/",
         withCredentials: true,
         extraHeaders: {

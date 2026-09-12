@@ -1,3 +1,4 @@
+import { AUTH_BASE, DEV_DATA_BASE } from './apiConfig';
 import React, { useState, useRef, useEffect } from 'react'; 
 import { 
   View, 
@@ -22,7 +23,7 @@ const iconBackground = 'transparent';
 
 // Configure axios to include credentials (cookies)
 axios.defaults.withCredentials = true;
-const API_BASE_URL = 'https://api.twentytwohealth.com/rpm-be/api/dev-data';
+const API_BASE_URL = DEV_DATA_BASE;
 
 // Health grid cards
 const healthCards = [
@@ -93,7 +94,7 @@ export default function Home({ navigation }) {
 
   const handleLogout = async () => {
     try {
-      await fetch('https://api.twentytwohealth.com/rpm-be/api/auth/logout', {
+      await fetch(`${AUTH_BASE}/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -110,7 +111,7 @@ export default function Home({ navigation }) {
   const fetchUserData = async () => {
     try {
       console.log('Fetching user data...');
-      const response = await fetch('https://api.twentytwohealth.com/rpm-be/api/auth/check-me', {
+      const response = await fetch(`${AUTH_BASE}/check-me`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

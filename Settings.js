@@ -1,3 +1,4 @@
+import { AUTH_BASE, PRIVACY_URL } from './apiConfig';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -43,7 +44,7 @@ export default function Settings({ navigation }) {
       }
 
       const response = await fetch(
-        'https://api.twentytwohealth.com/rpm-be/api/auth/check-me',
+        `${AUTH_BASE}/check-me`,
         {
           method: 'GET',
           headers: {
@@ -121,7 +122,7 @@ export default function Settings({ navigation }) {
       title: 'Privacy Policy',
       icon: require('./assets/privacy-policy.png'),
       description: 'Control your data privacy settings',
-      action: () => Linking.openURL('https://api.twentytwohealth.com/privacy'), // Create a new screen
+      action: () => Linking.openURL(PRIVACY_URL), // Create a new screen
     },
     {
       id: 'help',

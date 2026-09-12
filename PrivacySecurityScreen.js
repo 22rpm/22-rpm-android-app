@@ -1,3 +1,4 @@
+import { PRIVACY_URL } from './apiConfig';
 // PrivacySecurityScreen.js
 import React, { useState } from 'react';
 import {
@@ -181,7 +182,7 @@ export default function PrivacySecurityScreen({ navigation }) {
   
   <TouchableOpacity 
     style={styles.settingItem}
-    onPress={() => Linking.openURL('https://api.twentytwohealth.com/privacy')}
+    onPress={() => Linking.openURL(PRIVACY_URL)}
   >
     <View style={styles.settingInfo}>
       <Text style={styles.settingName}>Privacy Policy</Text>
@@ -192,7 +193,7 @@ export default function PrivacySecurityScreen({ navigation }) {
   
   <TouchableOpacity 
     style={styles.settingItem}
-    onPress={() => Linking.openURL('https://api.twentytwohealth.com/privacy')}
+    onPress={() => Linking.openURL(PRIVACY_URL)}
   >
     <View style={styles.settingInfo}>
       <Text style={styles.settingName}>Terms of Service</Text>
@@ -203,7 +204,7 @@ export default function PrivacySecurityScreen({ navigation }) {
   
   <TouchableOpacity 
     style={styles.settingItem}
-    onPress={() => Linking.openURL('https://api.twentytwohealth.com/privacy')}
+    onPress={() => Linking.openURL(PRIVACY_URL)}
   >
     <View style={styles.settingInfo}>
       <Text style={styles.settingName}>HIPAA Compliance</Text>
@@ -214,7 +215,7 @@ export default function PrivacySecurityScreen({ navigation }) {
   
   <TouchableOpacity 
     style={styles.settingItem}
-    onPress={() => Linking.openURL('https://api.twentytwohealth.com/privacy')}
+    onPress={() => Linking.openURL(PRIVACY_URL)}
   >
     <View style={styles.settingInfo}>
       <Text style={styles.settingName}>Data Processing Agreement</Text>
