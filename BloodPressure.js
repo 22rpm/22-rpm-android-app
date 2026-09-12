@@ -26,6 +26,7 @@ import Svg, {
 import globalStyles from './globalStyles';
 import Bp2Module from './bridging/Bp2Module';
 import axios from 'axios';
+import { enqueueReading, drainOutbox } from './bpOutbox';
 
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -37,44 +38,10 @@ const DEV_TYPE = 'bp';
 axios.defaults.withCredentials = true;
 
 // Function to store device data - Same as iOS
-const storeDeviceData = async (deviceData) => {
-  const MAX_RETRIES = 3;
-  const RETRY_DELAY_MS = 1000;
-
-  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      console.log(`📡 [Attempt ${attempt}] Uploading BP data...`);
-      await new Promise(res => setTimeout(res, 500));
-
-      const response = await axios.post(
-        `${API_BASE_URL}/devices/data`,
-        deviceData,
-        {
-          withCredentials: true,
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 5000,
-        }
-      );
-
-      console.log('✅ Device data stored successfully');
-      return response.data;
-    } catch (error) {
-      const status = error.response?.status;
-      const msg = error.message;
-      console.warn(`❌ Upload attempt ${attempt} failed`, status || msg);
-
-      if (
-        attempt < MAX_RETRIES &&
-        (!status || status >= 500 || msg.includes('Network Error'))
-      ) {
-        await new Promise(res => setTimeout(res, RETRY_DELAY_MS));
-        continue;
-      }
-
-      throw error;
-    }
-  }
-};
+// BP readings are now delivered through the durable outbox (bpOutbox.js): a reading is persisted
+// to SQLite at capture and retried until a confirmed server success, so a failed/offline POST no
+// longer loses the reading (the previous fire-and-forget storeDeviceData threw after 3 in-memory
+// retries and the reading was dropped). See storeMeasurementData below.
 
 // Function to fetch historical data - Same as iOS
 const fetchHistoricalData = async (days = 7) => {
@@ -470,37 +437,41 @@ const measurementProcessedRef = useRef(false);
   const storeMeasurementData = async (reading) => {
     try {
       const currentDevice = connectedDeviceRef.current;
-      
-      const deviceData = {
-        devId: currentDevice?.id || 'bp_device_001',
-        devType: DEV_TYPE,
-        data: {
-          systolic: reading.systolic,
-          diastolic: reading.diastolic,
-          pulse: reading.bpm,
-          mean: reading.mean,
-          timestamp: new Date().toISOString(),
-          date: reading.date,
-          time: reading.time,
-          deviceInfo: {
-            name: currentDevice?.name || 'Blood Pressure Monitor',
-            id: currentDevice?.id || 'unknown_device_id',
-            batteryLevel: currentDevice?.batteryLevel,
-            type: 'viatom'
-          }
-        }
-      };
-      
-      console.log('📤 Storing device data with battery:', deviceData);
-      await storeDeviceData(deviceData);
-      console.log('✅ Device data stored with battery info');
+      const now = new Date();
 
+      // Persist to the durable outbox at capture. timestamp + measuredAt are both baked here
+      // (capture time) so a reading delivered later still dates to when it was measured, not
+      // received — the measured_at fix. The outbox retries until a confirmed server success.
+      const rec = {
+        devId: currentDevice?.id || 'bp_device_001',
+        devName: currentDevice?.name || 'Blood Pressure Monitor',
+        systolic: reading.systolic,
+        diastolic: reading.diastolic,
+        pulse: reading.bpm,
+        mean: reading.mean,
+        timestamp: now.toISOString(), // dedup key (server keys on user+devType+timestamp)
+        measuredAt: Math.floor(now.getTime() / 1000), // epoch s — measurement time
+        date: reading.date,
+        time: reading.time,
+        deviceInfo: {
+          name: currentDevice?.name || 'Blood Pressure Monitor',
+          id: currentDevice?.id || 'unknown_device_id',
+          batteryLevel: currentDevice?.batteryLevel,
+          type: 'viatom',
+        },
+      };
+
+      await enqueueReading(rec); // durable — survives a failed/offline POST, no data loss
+      drainOutbox(); // deliver now if online; the row stays until a confirmed success
       loadHistoricalData(filterDays);
     } catch (error) {
-      console.error('❌ Failed to store device data:', error);
+      // Reaching here means the SQLite enqueue itself failed (rare) — that's the only path that
+      // could lose a reading now, so surface it. A network failure does NOT reach here: the
+      // reading is safely queued and retried, no alarming prompt needed.
+      console.error('❌ Failed to queue BP reading:', error);
       Alert.alert(
-        'Data Upload Failed',
-        'Unable to send blood pressure data to the server. Please check your internet connection or try again later.',
+        'Could not save reading',
+        'This reading could not be saved to the device. Please try measuring again.',
         [{ text: 'OK', style: 'default' }],
         { cancelable: true }
       );
@@ -577,6 +548,18 @@ const measurementProcessedRef = useRef(false);
     checkBluetoothAvailability();
     loadHistoricalData(7); // Load historical data on component mount
   }, []);
+
+  // Drain any queued BP readings on mount and whenever this screen regains focus — so a reading
+  // captured while offline is delivered as soon as connectivity returns and the user comes back.
+  useEffect(() => {
+    drainOutbox();
+    const unsub = navigation?.addListener?.('focus', () => {
+      drainOutbox();
+    });
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
+  }, [navigation]);
 
   const checkBluetoothAvailability = async () => {
     try {

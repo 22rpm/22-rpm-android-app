@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { View, Text, StyleSheet } from 'react-native';
@@ -18,6 +18,7 @@ import ECG from './ECG';
 import  Settings  from './Settings';
 import AboutAppScreen from './AboutAppScreen';
 import PrivacySecurityScreen from './PrivacySecurityScreen';
+import { drainOutbox } from './bpOutbox';
 
 
 
@@ -27,6 +28,12 @@ import PrivacySecurityScreen from './PrivacySecurityScreen';
 
 export default function App() {
   const Stack = createStackNavigator();
+
+  // Deliver any BP readings queued while offline, once on app start — covers the case where a
+  // reading was captured offline and the app is reopened without visiting the BP screen.
+  useEffect(() => {
+    drainOutbox();
+  }, []);
 
   return (
     <NavigationContainer>
