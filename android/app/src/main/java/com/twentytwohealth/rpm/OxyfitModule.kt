@@ -1,4 +1,4 @@
-package com.infuzamed
+package com.twentytwohealth.rpm
 
 import android.util.Log
 import com.facebook.react.bridge.*

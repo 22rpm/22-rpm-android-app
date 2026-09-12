@@ -1,4 +1,4 @@
-package com.infuzamed
+package com.twentytwohealth.rpm
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -9,10 +9,10 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.infuzamed.Bp2Package
-import com.infuzamed.PulsebitExPackage
-import com.infuzamed.Pc60fwPackage
-import com.infuzamed.OxyfitPackage
+import com.twentytwohealth.rpm.Bp2Package
+import com.twentytwohealth.rpm.PulsebitExPackage
+import com.twentytwohealth.rpm.Pc60fwPackage
+import com.twentytwohealth.rpm.OxyfitPackage
 
 class MainApplication : Application(), ReactApplication {
 
